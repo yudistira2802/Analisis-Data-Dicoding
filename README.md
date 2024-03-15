@@ -12,7 +12,7 @@ To run the dashboard, follow these steps:
 Clone this repository to your local machine using the following command:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yudistira2802/Analisis-Data-Dicoding.git
 ```
 
 ### 2. Install Dependencies
@@ -32,6 +32,7 @@ Make sure you have the dataset `day.csv` located in the specified directory. If 
 Run the Streamlit app by executing the following command:
 
 ```bash
+cd dashboard
 streamlit run main.py
 ```
 
