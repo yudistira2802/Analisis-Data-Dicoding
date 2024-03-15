@@ -6,7 +6,7 @@ import streamlit as st
 # Set style seaborn
 sns.set(style='white')
  
-# Menyiapkan data day_df
+# Baca file CSV
 day_df = pd.read_csv("day.csv")
 day_df.head()
  
@@ -110,7 +110,6 @@ def create_weather_rent_df(df):
     })
     return weather_rent_df
  
- 
 # Membuat komponen filter
 min_date = pd.to_datetime(day_df['dateday']).dt.date.min()
 max_date = pd.to_datetime(day_df['dateday']).dt.date.max()
@@ -161,162 +160,26 @@ with col3:
     daily_rent_total = daily_rent_df['count'].sum()
     st.metric('Total User', value= daily_rent_total)
  
-# Membuat jumlah penyewaan bulanan
-st.subheader('Monthly Rentals')
-fig, ax = plt.subplots(figsize=(24, 8))
-ax.plot(
-    monthly_rent_df.index,
-    monthly_rent_df['count'],
-    marker='o', 
-    linewidth=2,
-    color='tab:blue'
-)
- 
-for index, row in enumerate(monthly_rent_df['count']):
-    ax.text(index, row + 1, str(row), ha='center', va='bottom', fontsize=12)
- 
-ax.tick_params(axis='x', labelsize=25, rotation=45)
-ax.tick_params(axis='y', labelsize=20)
-st.pyplot(fig)
- 
-# Membuat jumlah penyewaan berdasarkan season
-st.subheader('Seasonly Rentals')
- 
-fig, ax = plt.subplots(figsize=(16, 8))
- 
-sns.barplot(
-    x='season',
-    y='registered',
-    data=season_rent_df,
-    label='Registered',
-    color='tab:blue',
-    ax=ax
-)
- 
-sns.barplot(
-    x='season',
-    y='casual',
-    data=season_rent_df,
-    label='Casual',
-    color='tab:orange',
-    ax=ax
-)
- 
-for index, row in season_rent_df.iterrows():
-    ax.text(index, row['registered'], str(row['registered']), ha='center', va='bottom', fontsize=12)
-    ax.text(index, row['casual'], str(row['casual']), ha='center', va='bottom', fontsize=12)
- 
-ax.set_xlabel(None)
-ax.set_ylabel(None)
-ax.tick_params(axis='x', labelsize=20, rotation=0)
-ax.tick_params(axis='y', labelsize=15)
-ax.legend()
-st.pyplot(fig)
- 
-# Membuah jumlah penyewaan berdasarkan kondisi cuaca
-st.subheader('Weatherly Rentals')
- 
-fig, ax = plt.subplots(figsize=(16, 8))
- 
-colors=["tab:blue", "tab:orange", "tab:green"]
- 
-sns.barplot(
-    x=weather_rent_df.index,
-    y=weather_rent_df['count'],
-    palette=colors,
-    ax=ax
-)
- 
-for index, row in enumerate(weather_rent_df['count']):
-    ax.text(index, row + 1, str(row), ha='center', va='bottom', fontsize=12)
- 
-ax.set_xlabel(None)
-ax.set_ylabel(None)
-ax.tick_params(axis='x', labelsize=20)
-ax.tick_params(axis='y', labelsize=15)
-st.pyplot(fig)
- 
-# Membuat jumlah penyewaan berdasarkan weekday, working dan holiday
-st.subheader('Weekday, Workingday, and Holiday Rentals')
- 
-fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(15,10))
- 
-colors1=["tab:blue", "tab:orange"]
-colors2=["tab:blue", "tab:orange"]
-colors3=["tab:blue", "tab:orange", "tab:green", "tab:red", "tab:purple", "tab:brown", "tab:pink"]
- 
-# Berdasarkan workingday
-sns.barplot(
-    x='workingday',
-    y='count',
-    data=workingday_rent_df,
-    palette=colors1,
-    ax=axes[0])
- 
-for index, row in enumerate(workingday_rent_df['count']):
-    axes[0].text(index, row + 1, str(row), ha='center', va='bottom', fontsize=12)
- 
-axes[0].set_title('Number of Rents based on Working Day')
-axes[0].set_ylabel(None)
-axes[0].tick_params(axis='x', labelsize=15)
-axes[0].tick_params(axis='y', labelsize=10)
- 
-# Berdasarkan holiday
-sns.barplot(
-  x='holiday',
-  y='count',
-  data=holiday_rent_df,
-  palette=colors2,
-  ax=axes[1])
- 
-for index, row in enumerate(holiday_rent_df['count']):
-    axes[1].text(index, row + 1, str(row), ha='center', va='bottom', fontsize=12)
- 
-axes[1].set_title('Number of Rents based on Holiday')
-axes[1].set_ylabel(None)
-axes[1].tick_params(axis='x', labelsize=15)
-axes[1].tick_params(axis='y', labelsize=10)
- 
-# Berdasarkan weekday
-sns.barplot(
-  x='weekday',
-  y='count',
-  data=weekday_rent_df,
-  palette=colors3,
-  ax=axes[2])
- 
-for index, row in enumerate(weekday_rent_df['count']):
-    axes[2].text(index, row + 1, str(row), ha='center', va='bottom', fontsize=12)
- 
-axes[2].set_title('Number of Rents based on Weekday')
-axes[2].set_ylabel(None)
-axes[2].tick_params(axis='x', labelsize=15)
-axes[2].tick_params(axis='y', labelsize=10)
- 
-plt.tight_layout()
-st.pyplot(fig)
- 
-# Analisis Pembandingan Hari Kerja dan Akhir Pekan
-st.subheader('Comparison between Weekdays and Weekends Rentals')
- 
-weekdays = main_df[main_df['workingday'] == 1]['count']
-weekends = main_df[main_df['workingday'] == 0]['count']
- 
+# Tambahkan visualisasi tren jumlah peminjaman sepeda selama dua tahun terakhir
+st.subheader('Tren Jumlah Peminjaman Sepeda (Dua Tahun Terakhir)')
+two_years_data = day_df[day_df['year'] == 1]
+monthly_rentals = two_years_data.groupby('month')['count'].sum()
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.histplot(weekdays, kde=True, color='tab:blue', label='Weekdays', ax=ax)
-sns.histplot(weekends, kde=True, color='tab:orange', label='Weekends', ax=ax)
-ax.set_xlabel('Number of Rentals')
-ax.set_ylabel('Frequency')
-ax.legend()
+ax.plot(monthly_rentals.index, monthly_rentals.values, marker='o')
+ax.set_xlabel('Bulan')
+ax.set_ylabel('Jumlah Peminjaman')
+ax.set_title('Tren Jumlah Peminjaman Sepeda (Dua Tahun Terakhir)')
+ax.set_xticklabels(monthly_rentals.index, rotation=45)
+ax.grid(True)
 st.pyplot(fig)
- 
-# Analisis Distribusi Durasi Sewa
-st.subheader('Distribution of Rental Duration')
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.histplot(main_df['count'], kde=True, color='tab:blue', ax=ax)
-ax.set_xlabel('Number of Rentals')
-ax.set_ylabel('Frequency')
+
+# Tambahkan visualisasi perbedaan pola peminjaman sepeda antara hari kerja dan akhir pekan
+st.subheader('Perbedaan Pola Peminjaman Sepeda Antara Hari Kerja dan Akhir Pekan')
+weekday_rentals = day_df[day_df['workingday'] == 1]['count'].sum()
+weekend_rentals = day_df[day_df['workingday'] == 0]['count'].sum()
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.bar(['Hari Kerja', 'Akhir Pekan'], [weekday_rentals, weekend_rentals], color=['blue', 'green'])
+ax.set_xlabel('Hari')
+ax.set_ylabel('Jumlah Peminjaman')
+ax.set_title('Perbedaan Pola Peminjaman Sepeda Antara Hari Kerja dan Akhir Pekan')
 st.pyplot(fig)
- 
-st.caption('Copyright (c) Ahmad Yudistira 2024')
- 
