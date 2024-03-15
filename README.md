@@ -32,7 +32,6 @@ Make sure you have the dataset `day.csv` located in the specified directory. If 
 Run the Streamlit app by executing the following command:
 
 ```bash
-cd dashboard
 streamlit run main.py
 ```
 
